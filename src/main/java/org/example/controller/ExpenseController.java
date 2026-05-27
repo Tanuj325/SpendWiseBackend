@@ -18,37 +18,55 @@ import java.util.*;
 public class ExpenseController {
 
     private final ExpenseService expenseService;
+
     private final ExpenseRepository expenseRepository;
 
     // ================= ADD EXPENSE =================
+
     @PostMapping("/{userId}")
     public Expense addExpense(
             @RequestBody Expense expense,
             @PathVariable String userId
     ) {
-        return expenseService.addExpense(expense, new ObjectId(userId));
+
+        return expenseService.addExpense(
+                expense,
+                new ObjectId(userId)
+        );
     }
 
     // ================= GET ALL =================
+
     @GetMapping("/{userId}")
-    public List<Expense> getExpenses(@PathVariable String userId) {
+    public List<Expense> getExpenses(
+            @PathVariable String userId
+    ) {
+
         return expenseService.getUserExpenses(userId);
     }
 
-    // ================= CATEGORY WISE =================
-    @GetMapping("/category/{userId}")
-    public Map<String, Double> getCategoryTotals(@PathVariable String userId) {
+    // ================= CATEGORY TOTAL =================
 
-        List<Expense> expenses = expenseService.getUserExpenses(userId);
+    @GetMapping("/category/{userId}")
+    public Map<String, Double> getCategoryTotals(
+            @PathVariable String userId
+    ) {
+
+        List<Expense> expenses =
+                expenseService.getUserExpenses(userId);
 
         Map<String, Double> map = new HashMap<>();
 
         for (Expense e : expenses) {
+
             if (e.getDate() == null) continue;
 
             map.put(
                     e.getCategory(),
-                    map.getOrDefault(e.getCategory(), 0.0) + e.getAmount()
+                    map.getOrDefault(
+                            e.getCategory(),
+                            0.0
+                    ) + e.getAmount()
             );
         }
 
@@ -56,6 +74,7 @@ public class ExpenseController {
     }
 
     // ================= MONTHLY REPORT =================
+
     @GetMapping("/report/{userId}")
     public Map<String, Object> getMonthlyReport(
             @PathVariable String userId,
@@ -64,10 +83,16 @@ public class ExpenseController {
     ) {
 
         List<Expense> expenses =
-                expenseRepository.findByUserId(new ObjectId(userId));
+                expenseRepository.findByUserId(
+                        new ObjectId(userId)
+                );
 
-        Map<String, Double> categoryWise = new HashMap<>();
-        Map<Integer, Double> dayWise = new HashMap<>();
+        Map<String, Double> categoryWise =
+                new HashMap<>();
+
+        Map<Integer, Double> dayWise =
+                new HashMap<>();
+
         double total = 0;
 
         for (Expense e : expenses) {
@@ -79,52 +104,76 @@ public class ExpenseController {
                     .atZone(ZoneId.systemDefault())
                     .toLocalDate();
 
-            if (date.getMonthValue() == month + 1 && date.getYear() == year) {
+            if (
+                    date.getMonthValue() == month + 1
+                            && date.getYear() == year
+            ) {
 
                 categoryWise.put(
                         e.getCategory(),
-                        categoryWise.getOrDefault(e.getCategory(), 0.0) + e.getAmount()
+                        categoryWise.getOrDefault(
+                                e.getCategory(),
+                                0.0
+                        ) + e.getAmount()
                 );
 
                 int day = date.getDayOfMonth();
+
                 dayWise.put(
                         day,
-                        dayWise.getOrDefault(day, 0.0) + e.getAmount()
+                        dayWise.getOrDefault(
+                                day,
+                                0.0
+                        ) + e.getAmount()
                 );
 
                 total += e.getAmount();
             }
         }
 
-        Map<String, Object> response = new HashMap<>();
+        Map<String, Object> response =
+                new HashMap<>();
+
         response.put("categoryWise", categoryWise);
+
         response.put("dayWise", dayWise);
+
         response.put("total", total);
 
         return response;
     }
 
-    // ================= LAST 6 MONTHS (FIXED SORT + FORMAT) =================
+    // ================= LAST 6 MONTHS =================
+
     @GetMapping("/monthly/{userId}")
-    public Map<String, Double> getLast6Months(@PathVariable String userId) {
+    public Map<String, Double> getLast6Months(
+            @PathVariable String userId
+    ) {
 
         List<Expense> expenses =
-                expenseRepository.findByUserId(new ObjectId(userId));
+                expenseRepository.findByUserId(
+                        new ObjectId(userId)
+                );
 
-        Map<String, Double> monthlyMap = new LinkedHashMap<>();
+        Map<String, Double> monthlyMap =
+                new LinkedHashMap<>();
 
-        // FIXED MONTH FORMAT ARRAY (SAFE + STABLE)
         String[] months = {
-                "Jan","Feb","Mar","Apr","May","Jun",
-                "Jul","Aug","Sep","Oct","Nov","Dec"
+                "Jan", "Feb", "Mar", "Apr",
+                "May", "Jun", "Jul", "Aug",
+                "Sep", "Oct", "Nov", "Dec"
         };
 
-        // LAST 6 MONTH KE KEYS
+        // LAST 6 MONTHS
         for (int i = 5; i >= 0; i--) {
 
-            LocalDate date = LocalDate.now().minusMonths(i);
+            LocalDate date =
+                    LocalDate.now().minusMonths(i);
 
-            String key = months[date.getMonthValue() - 1] + " " + date.getYear();
+            String key =
+                    months[date.getMonthValue() - 1]
+                            + " "
+                            + date.getYear();
 
             monthlyMap.put(key, 0.0);
         }
@@ -139,12 +188,17 @@ public class ExpenseController {
                     .atZone(ZoneId.systemDefault())
                     .toLocalDate();
 
-            String key = months[date.getMonthValue() - 1] + " " + date.getYear();
+            String key =
+                    months[date.getMonthValue() - 1]
+                            + " "
+                            + date.getYear();
 
             if (monthlyMap.containsKey(key)) {
+
                 monthlyMap.put(
                         key,
-                        monthlyMap.get(key) + e.getAmount()
+                        monthlyMap.get(key)
+                                + e.getAmount()
                 );
             }
         }

@@ -11,10 +11,8 @@ public class Application {
 
         Dotenv dotenv = Dotenv.load();
 
-        System.setProperty(
-                "MONGO_URI",
-                dotenv.get("MONGO_URI")
-        );
+        System.setProperty("MONGO_URI", dotenv.get("MONGO_URI"));
+        System.setProperty("JWT_SECRET", dotenv.get("JWT_SECRET"));
 
         SpringApplication.run(Application.class, args);
     }

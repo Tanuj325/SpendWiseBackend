@@ -1,5 +1,6 @@
 package org.example.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.bson.types.ObjectId;
@@ -19,6 +20,7 @@ public class User {
 
     private String email;
 
+    @JsonIgnore
     private String password;
 
     private List<ObjectId> expenseIds;
@@ -26,6 +28,11 @@ public class User {
     // FRONTEND KO STRING ID DENE KE LIYE
     @JsonProperty("id")
     public String getIdString() {
+
+        if (id == null) {
+            return null;
+        }
+
         return id.toHexString();
     }
 }

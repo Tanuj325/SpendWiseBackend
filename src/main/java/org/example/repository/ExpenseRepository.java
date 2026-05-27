@@ -1,8 +1,7 @@
 package org.example.repository;
 
-import org.example.entity.Expense;
 import org.bson.types.ObjectId;
-import org.example.entity.User;
+import org.example.entity.Expense;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
