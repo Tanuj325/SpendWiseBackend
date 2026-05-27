@@ -4,19 +4,30 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import jakarta.annotation.PostConstruct;
 import java.security.Key;
 import java.util.Date;
 
 @Component
 public class JwtUtil {
 
-    private final String SECRET =
-            System.getProperty("JWT_SECRET");
+    @Value("${jwt.secret}")
+    private String secret;
 
-    private final Key key =
-            Keys.hmacShaKeyFor(SECRET.getBytes());
+    private Key key;
+
+    @PostConstruct
+    public void init() {
+
+        if (secret == null || secret.isEmpty()) {
+            throw new RuntimeException("JWT_SECRET is missing in environment variables");
+        }
+
+        key = Keys.hmacShaKeyFor(secret.getBytes());
+    }
 
     public String generateToken(String email) {
 
@@ -24,8 +35,7 @@ public class JwtUtil {
                 .setSubject(email)
                 .setIssuedAt(new Date())
                 .setExpiration(
-                        new Date(System.currentTimeMillis()
-                                + 1000 * 60 * 60 * 24 * 7)
+                        new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 7)
                 )
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
