@@ -7,6 +7,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -23,7 +24,7 @@ public class User {
     @JsonIgnore
     private String password;
 
-    private List<ObjectId> expenseIds;
+    private List<ObjectId> expenseIds = new ArrayList<>();
 
     // FRONTEND KO STRING ID DENE KE LIYE
     @JsonProperty("id")

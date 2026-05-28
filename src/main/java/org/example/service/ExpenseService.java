@@ -8,8 +8,6 @@ import org.example.repository.ExpenseRepository;
 import org.example.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -20,29 +18,27 @@ public class ExpenseService {
     private final UserRepository userRepository;
 
     public Expense addExpense(Expense expense, ObjectId userId) {
-        expense.setDate(new Date());
+        expense.setId(null);
         expense.setUserId(userId);
-        Expense savedExpense = expenseRepository.save(expense);
-
-        // ✅ UPDATE USER
+        if (expense.getDate() == null) {
+            expense.setDate(new java.util.Date());
+        }
+        Expense saved = expenseRepository.save(expense);
         User user = userRepository.findById(userId).orElse(null);
-
         if (user != null) {
-
             if (user.getExpenseIds() == null) {
-                user.setExpenseIds(new ArrayList<>());
-            }else{
-                user.getExpenseIds().add(savedExpense.getId());
-
+                user.setExpenseIds(new java.util.ArrayList<>());
             }
-
+            user.getExpenseIds().add(saved.getId());
             userRepository.save(user);
         }
-
-        return savedExpense;
+        return saved;
     }
 
     public List<Expense> getUserExpenses(String userId) {
-        return expenseRepository.findByUserId(new ObjectId(userId));
+
+        return expenseRepository.findByUserId(
+                new ObjectId(userId)
+        );
     }
 }
