@@ -20,14 +20,8 @@ public class ExpenseService {
     private final UserRepository userRepository;
 
     public Expense addExpense(Expense expense, ObjectId userId) {
-
-        // ✅ FORCE DATE
         expense.setDate(new Date());
-
-        // ✅ SET USER ID
         expense.setUserId(userId);
-
-        // ✅ SAVE EXPENSE
         Expense savedExpense = expenseRepository.save(expense);
 
         // ✅ UPDATE USER
@@ -37,9 +31,10 @@ public class ExpenseService {
 
             if (user.getExpenseIds() == null) {
                 user.setExpenseIds(new ArrayList<>());
-            }
+            }else{
+                user.getExpenseIds().add(savedExpense.getId());
 
-            user.getExpenseIds().add(savedExpense.getId());
+            }
 
             userRepository.save(user);
         }
