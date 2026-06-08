@@ -46,4 +46,52 @@ public class ExpenseService {
     public List<Expense> getUserExpenses(String userId) {
         return expenseRepository.findByUserId(new ObjectId(userId));
     }
+
+    public Expense updateExpense(
+            Expense newExpense,
+            ObjectId userId,
+            ObjectId expenseId
+    ) {
+
+        Expense oldExpense = expenseRepository.findById(expenseId)
+                .orElseThrow(() -> new RuntimeException("Expense not found"));
+
+        if (!oldExpense.getUserId().equals(userId)) {
+            throw new RuntimeException("Unauthorized access");
+        }
+
+        if (newExpense.getDescription() != null) {
+            oldExpense.setDescription(newExpense.getDescription());
+        }
+
+        if (newExpense.getAmount() != null) {
+            oldExpense.setAmount(newExpense.getAmount());
+        }
+
+        if (newExpense.getCategory() != null) {
+            oldExpense.setCategory(newExpense.getCategory());
+        }
+
+        if (newExpense.getDate() != null) {
+            oldExpense.setDate(newExpense.getDate());
+        }
+
+        return expenseRepository.save(oldExpense);
+    }
+
+    public void deleteExpense(ObjectId userId, ObjectId expenseId) {
+        Expense expense = expenseRepository.findById(expenseId)
+                .orElseThrow(() -> new RuntimeException("Expense not found"));
+
+        if (!expense.getUserId().equals(userId)) {
+            throw new RuntimeException("Unauthorized access");
+        }
+
+        userRepository.findById(userId).ifPresent(user -> {
+            user.getExpenseIds().removeIf(id -> id.equals(expenseId));
+            userRepository.save(user);
+        });
+
+        expenseRepository.delete(expense);
+    }
 }

@@ -15,7 +15,7 @@ public class Expense {
     private ObjectId id;
 
     private String description;
-    private double amount;
+    private Double amount;
     private String category;
     private Date date = new Date();
 

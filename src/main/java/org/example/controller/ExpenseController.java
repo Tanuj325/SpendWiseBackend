@@ -5,6 +5,7 @@ import org.bson.types.ObjectId;
 import org.example.entity.Expense;
 import org.example.repository.ExpenseRepository;
 import org.example.service.ExpenseService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -204,5 +205,33 @@ public class ExpenseController {
         }
 
         return monthlyMap;
+    }
+
+    @PatchMapping("/{userId}/{expenseId}")
+    public Expense updateExpense(
+            @RequestBody Expense newExpense,
+            @PathVariable String userId,
+            @PathVariable String expenseId
+    ) {
+
+        return expenseService.updateExpense(
+                newExpense,
+                new ObjectId(userId),
+                new ObjectId(expenseId)
+        );
+    }
+
+    @DeleteMapping("/{userId}/{expenseId}")
+    public ResponseEntity<Void> deleteExpense(
+            @PathVariable String userId,
+            @PathVariable String expenseId
+    ) {
+
+        expenseService.deleteExpense(
+                new ObjectId(userId),
+                new ObjectId(expenseId)
+        );
+
+        return ResponseEntity.noContent().build();
     }
 }
