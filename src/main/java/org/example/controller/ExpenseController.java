@@ -5,6 +5,7 @@ import org.bson.types.ObjectId;
 import org.example.entity.Expense;
 import org.example.repository.ExpenseRepository;
 import org.example.service.ExpenseService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,6 +45,19 @@ public class ExpenseController {
     ) {
 
         return expenseService.getUserExpenses(userId);
+    }
+
+    @GetMapping("/{userId}/limit")
+    public Page<Expense> getUserExpenses(
+            @PathVariable String userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        return expenseService.getUserExpenses(
+                userId,
+                page,
+                size
+        );
     }
 
     // ================= CATEGORY TOTAL =================

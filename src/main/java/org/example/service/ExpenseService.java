@@ -6,7 +6,11 @@ import org.example.entity.Expense;
 import org.example.entity.User;
 import org.example.repository.ExpenseRepository;
 import org.example.repository.UserRepository;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -45,6 +49,24 @@ public class ExpenseService {
 
     public List<Expense> getUserExpenses(String userId) {
         return expenseRepository.findByUserId(new ObjectId(userId));
+    }
+
+    public Page<Expense> getUserExpenses(
+            String userId,
+            int page,
+            int size
+    ) {
+
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
+
+        return expenseRepository.findByUserId(
+                new ObjectId(userId),
+                pageable
+        );
     }
 
     public Expense updateExpense(
